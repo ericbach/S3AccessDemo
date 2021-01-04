@@ -5,6 +5,7 @@ This demo application shows how to access an S3 bucket using the AWS .NET SDK wi
 ## Documentation
 
 ![Access](https://github.com/ericbach/S3AssumeDemo/blob/master/docs/Access.jpg?raw=true)
+![Access](docs/Access.jpg?raw=true)
 
 https://github.com/ericbach/S3AssumeDemo/blob/master/docs/VPC%20endpoints.mp4
 
