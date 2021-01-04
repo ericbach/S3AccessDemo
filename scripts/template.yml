@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creates a user with custom policy to assume a role
+
+Parameters:
+  S3Bucket:
+    Type: String
+    Default: arn:aws:s3:::eric-bach-stuff
+    Description: ARN of the S3 bucket to allow access to
+
+Resources:
+  User:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: eric-bach-demo
+      Tags:
+        - Key: service
+          Value: eric-bach
+        - Key: env
+          Value: demo
+
+  UserKeys:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref User
+
+  UserRole:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: eric-bach-demo-role
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: sts:AssumeRole
+            Resource: !GetAtt UserAssumeRole.Arn
+      Users:
+        - !Ref User
+
+  UserAssumeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: eric-bach-demo-assume-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS:
+                - !GetAtt User.Arn
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: eric-bach-demo-assume-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource: !Ref S3Bucket
+      Tags:
+        - Key: service
+          Value: eric-bach
+        - Key: env
+          Value: demo
+
+Outputs:
+  UserArn:
+    Description: The ARN of the user
+    Value: !GetAtt User.Arn
+  UserAccessId:
+    Description: The Accees Key Id of the user
+    Value: !Ref UserKeys
+  UserAccessKey:
+    Description: The Access Key Secret of the user
+    Value: !GetAtt UserKeys.SecretAccessKey
+  UserAssumeRoleArn:
+    Description: The ARN of the user assume role
+    Value: !GetAtt UserAssumeRole.Arn
